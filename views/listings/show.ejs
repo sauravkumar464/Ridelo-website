@@ -83,7 +83,7 @@
     <br>
 </div>
 
-<% if(currUser && currUser._id.equals(listing.owner._id)) { %>
+<% if(currUser && currUser._id && currUser._id.equals(listing.owner._id)) { %>
     <div class="deledit">
         <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark offset-3 edit-btn">Edit</a>
         <form method="post" action="/listings/<%=listing._id%>?_method=delete">
@@ -93,7 +93,7 @@
 <% } %>
 
 <div class="col-8 offset-3 mt-3 mb-3">
-    <% if(currUser) { %>
+    <% if(currUser && currUser._id) { %>
         <hr>
         <h4>Leave a Review</h4>
         <form action="/listings/<%=listing.id%>/reviews" method="post" novalidate class="needs-validation">
@@ -143,7 +143,7 @@
                             <%= review.comment %>
                         </p>
                     </div>
-                    <% if(currUser && currUser._id.equals(review.author._id)) { %>
+                    <% if(currUser && currUser._id && currUser._id.equals(review.author._id)) { %>
                         <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=Delete"
                             class="mb-3" method="post">
                             <button class="btn btn-dark">delete</button>
@@ -310,7 +310,7 @@
           doc.text("Customer Details:", 14, 84);
           doc.setFontSize(11);
           doc.setTextColor(80, 80, 80);
-          const customerName = "<%= currUser ? currUser.username : 'Guest' %>";
+          const customerName = "<%= currUser && currUser.username ? currUser.username : 'Guest' %>";
           doc.text(`Name: ${customerName}`, 14, 92);
           
           // Table Data

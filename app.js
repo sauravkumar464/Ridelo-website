@@ -58,27 +58,28 @@ async function main() {
     await mongoose.connect(dbUrl)
 }
 
+// View engine setup
 app.set('views', path.join(__dirname, 'views'))
 app.set("view engine", 'ejs')
-app.use(express.urlencoded({ extended: true }))
-app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
+
+// Middleware - Body parsing and utilities
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
+app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, '/public')))
 
+// Session and MongoStore setup
 const store = MongoStore.create({
     mongoUrl: dbUrl,
     crypto: {
         secret: process.env.SECRET,
-
     },
     touchAfter: 24 * 3600,
 })
 
-
-
 store.on("error", () => {
     console.log("ERROR in mongo sesssion Store");
-
 })
 
 const sessionOptions = {
@@ -93,33 +94,22 @@ const sessionOptions = {
     }
 }
 
-// Corrected line: Switched from import to require
-// const paymentRoutes = require("./routes/payment.js");
-
-// app.use("/payment", paymentRoutes);
-
-// app.js
-// ...
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // <--- Add this line
-app.use(methodOverride("_method"));
-// ...
-
-
+// Session middleware
 app.use(session(sessionOptions))
 app.use(flash())
 
+// Passport authentication setup
 app.use(passport.initialize())
 app.use(passport.session())
 passport.use(new localStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-
+// ✅ CRITICAL: Global middleware to set currUser in all templates
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
-    res.locals.currUser = req.user || null;
+    res.locals.currUser = req.user || null;  // Always defined (null if not logged in)
     next();
 })
 
