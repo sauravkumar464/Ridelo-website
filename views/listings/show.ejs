@@ -1,0 +1,350 @@
+<% layout('/layouts/boilerplate') -%>
+<style>
+    .booking{
+        background-color: #5cc8e3;
+        color: white;
+        border: none;
+    }
+
+    .booking:hover{
+        background-color: #5cc8e3 !important;
+        border: none;
+    }
+
+
+</style>
+<script>
+    const mapToken = "<%= process.env.MAP_TOKEN %>";
+    const listing = <%- JSON.stringify(listing) %>;
+</script>
+
+<div class="row">
+    <div class="col-8 offset-3 mt-3">
+        <h3>
+            <%=listing.title %>
+        </h3>
+        <br>
+    </div>
+
+    <div class="card col-6 offset-3 show-card listing-card">
+        <img src="<%= listing.image?.url || 'https://plus.unsplash.com/premium_photo-1686090449192-4ab1d00cb735?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' %>"
+            class="card-img-top show-img" alt="listing_image">
+        <div class="card-body">
+            <p class="card-text">
+                <i><b>Owner -
+                    <%= listing.owner.username %>
+                    </b></i>
+                <br>
+                <br>
+                <%= listing.description %>
+                <br>
+                <br>
+                <b> ₹ <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> / day<br> </b>
+                <b><i style="padding-right: 5px;" class="fa-solid fa-gauge"></i><%=listing.mileage %> kmpl</b>
+                <br>
+                <i>
+                    <%= listing.location %> <br>
+                    <%= listing.country %>
+                </i>
+                <br>
+                <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+  Book Now
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle" style="padding-right: 60%;">Owner's Detail</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <b><i><p>Owner:- <%= listing.owner.username %></p></i></b>
+        <p>Contact :-<%= listing.mob %></p>
+        <p>Location :-<%= listing.location %>, <%= listing.country %></p>
+
+    <button id="pay-btn" class="btn btn-primary" style="background-color: red;"><b>Pay <%= listing.price %></b></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+      </div>
+    </div>
+  </div>
+</div>
+            </p>
+        </div>
+    </div>
+
+    <br>
+</div>
+
+<% if(currUser && currUser._id.equals(listing.owner._id)) { %>
+    <div class="deledit">
+        <a href="/listings/<%=listing._id%>/edit" class="btn btn-dark offset-3 edit-btn">Edit</a>
+        <form method="post" action="/listings/<%=listing._id%>?_method=delete">
+            <button class="btn btn-dark offset-3 delete-btn">Delete</button>
+        </form>
+    </div>
+<% } %>
+
+<div class="col-8 offset-3 mt-3 mb-3">
+    <% if(currUser) { %>
+        <hr>
+        <h4>Leave a Review</h4>
+        <form action="/listings/<%=listing.id%>/reviews" method="post" novalidate class="needs-validation">
+            <div class="mb-3 mt-3">
+                <label for="rating" class="form-label">Rating</label>
+                <fieldset class="starability-heart">
+                    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0"
+                        checked aria-label="No rating." />
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                    <label for="first-rate1" title="Terrible">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2" title="Not good">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3" title="Average">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4" title="Very good">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5" title="Amazing">5 stars</label>
+                </fieldset>
+            </div>
+            <div class="mb-3 mt-3">
+                <label for="comment" class="form-label">Comments</label>
+                <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control"
+                    required></textarea>
+                <div class="invalid-feedback"> Please add Some comments with reviews</div>
+            </div>
+            <button class="btn btn-outline-dark mt-2 sub-btn"> Submit </button>
+        </form>
+        <hr>
+    <% } %>
+
+    <% if(listing.reviews.length > 0) { %>
+        <div class="row">
+            <p><b>All Reviews</b></p>
+            <% for (review of listing.reviews) { %>
+                <div class="card col-5 ms-3 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title mt-2">
+                            <%= review.author.username %>
+                            <b>
+                                <p class="starability-result card-text" data-rating="<%= review.rating %>">
+                                    stars
+                                </p>
+                            </b>
+                        </h5>
+                        <p class="card-text">
+                            <%= review.comment %>
+                        </p>
+                    </div>
+                    <% if(currUser && currUser._id.equals(review.author._id)) { %>
+                        <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=Delete"
+                            class="mb-3" method="post">
+                            <button class="btn btn-dark">delete</button>
+                        </form>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+
+    <!-- <% if(listing.price > 0) { %>
+    <div class="col-8 mb-3 mt-3">
+        <h4>Book Now</h4>
+        <button id="rzp-button1" class="btn btn-primary">Pay Now</button>
+    </div>
+    <% } %> -->
+
+    <div class="col-8 mb-3">
+        <h4>Where you'll find the Vehicle</h4>
+        <div id="map"></div>
+    </div>
+</div>
+
+<!-- <script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
+<!-- <script>
+    document.getElementById('rzp-button1').onclick = async function(e) {
+        e.preventDefault();
+
+        // Safely get the price, defaulting to 0 if it's not a valid number.
+        const price = Number("<%= listing.price %>") || 0; 
+
+        if (price <= 0) {
+            console.error('Invalid price for payment:', price);
+            alert('This listing does not have a valid price for payment.');
+            return; 
+        }
+
+        const amount = price; 
+
+        try {
+            const response = await fetch('/payment/razorpay-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amount }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server responded with an error:', errorData); 
+                throw new Error(errorData.error || 'An unknown error occurred on the server.');
+            }
+
+            const order = await response.json();
+
+            const options = {
+                key: "<%= process.env.RAZORPAY_KEY_ID %>", 
+                amount: order.amount,
+                currency: order.currency,
+                name: "Wanderer",
+                description: "Payment for Listing",
+                order_id: order.id,
+                handler: async function(response) {
+                    const verifyResponse = await fetch('/payment/razorpay-verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            order_id: response.razorpay_order_id,
+                            payment_id: response.razorpay_payment_id,
+                            signature: response.razorpay_signature,
+                        }),
+                    });
+
+                    const result = await verifyResponse.json();
+                    if (result.status === 'success') {
+                        alert('Payment successful!');
+                        window.location.href = '/listings'; 
+                    } else {
+                        alert('Payment failed!');
+                    }
+                },
+                prefill: {
+                    name: "Current User", // You can use `<%= currUser?.username || 'Current User' %>` if it's available
+                    email: "user@example.com", // You can use `<%= currUser?.email || 'user@example.com' %>`
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        } catch (error) {
+            console.error('Payment initiation failed:', error);
+            alert('Could not start payment. Please try again later. Check the console for details.');
+        }
+    };
+</script> -->
+
+<script src="/js/map.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+  document.getElementById("pay-btn").addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    try {
+      // SAFEST FIX → always valid JS
+      const amount = Number(<%= JSON.stringify(listing.price) %>) * 100; // Convert ₹ to paise
+
+      const response = await fetch("/listings/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+      const order = await response.json();
+
+      if (!order.id) {
+        alert("❌ Failed to create Razorpay order");
+        return;
+      }
+
+      const options = {
+        key: "<%= process.env.RAZORPAY_KEY_ID %>",
+        amount: order.amount,
+        currency: "INR",
+        name: "Ridelo Rentals",
+        description: "Listing Payment",
+        order_id: order.id,
+        handler: function (response) {
+          alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+          
+          // --- GENERATE PDF RECEIPT ---
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          
+          // Company Info
+          doc.setFontSize(22);
+          doc.setTextColor(40, 40, 40);
+          doc.text("Ridelo Rentals", 105, 20, null, null, "center");
+          
+          doc.setFontSize(12);
+          doc.setTextColor(100, 100, 100);
+          doc.text("123 Ridelo Avenue, Metropolis", 105, 28, null, null, "center");
+          doc.text("support@ridelorentals.com | +91 87892 25659", 105, 34, null, null, "center");
+          
+          // Divider
+          doc.setLineWidth(0.5);
+          doc.line(14, 42, 196, 42);
+          
+          // Receipt Details Header
+          doc.setFontSize(16);
+          doc.setTextColor(0, 0, 0);
+          doc.text("Payment Receipt", 14, 52);
+          
+          doc.setFontSize(11);
+          doc.text(`Receipt Date: ${new Date().toLocaleDateString()}`, 14, 60);
+          doc.text(`Payment ID: ${response.razorpay_payment_id}`, 14, 66);
+          doc.text(`Order ID: ${response.razorpay_order_id || order.id}`, 14, 72);
+          
+          // Customer Details
+          doc.setFontSize(12);
+          doc.text("Customer Details:", 14, 84);
+          doc.setFontSize(11);
+          doc.setTextColor(80, 80, 80);
+          const customerName = "<%= currUser ? currUser.username : 'Guest' %>";
+          doc.text(`Name: ${customerName}`, 14, 92);
+          
+          // Table Data
+          doc.autoTable({
+            startY: 105,
+            head: [['Description', 'Amount']],
+            body: [
+              [`Vehicle Booking: ${listing.title}`, `Rs. ${listing.price}`],
+              ['Status', 'Paid / Success']
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [51, 153, 204] }
+          });
+          
+          // Footer
+          const finalY = doc.lastAutoTable.finalY || 150;
+          doc.setFontSize(10);
+          doc.text("Thank you for choosing Ridelo Rentals!", 105, finalY + 20, null, null, "center");
+          
+          // Save the PDF
+          doc.save(`Ridelo_Receipt_${response.razorpay_payment_id}.pdf`);
+        },
+        theme: { color: "#3399cc" },
+      };
+
+      const rzp1 = new Razorpay(options);
+      rzp1.open();
+    } catch (error) {
+      console.error(error);
+      alert("❌ Something went wrong");
+    }
+  });
+</script>
+
+
+
+

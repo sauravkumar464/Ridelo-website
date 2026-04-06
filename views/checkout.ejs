@@ -1,0 +1,50 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout</title>
+</head>
+<body>
+  <h1>Pay with Razorpay</h1>
+  <button id="rzp-button1">Pay ₹500</button>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    document.getElementById('rzp-button1').onclick = async function(e){
+      e.preventDefault();
+
+      // Step 1: Create order from backend
+      const res = await fetch("/payment/create-order", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ amount: 500 }) // in rupees
+      });
+      const data = await res.json();
+
+      // Step 2: Open Razorpay Checkout
+      var options = {
+          "key": "<%= process.env.RAZORPAY_KEY_ID %>", 
+          "amount": data.amount,
+          "currency": data.currency,
+          "name": "RIdo App",
+          "description": "Test Transaction",
+          "order_id": data.orderId,
+          "handler": async function (response){
+              // Send payment details to backend for verification
+              await fetch("/payment/verify", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(response)
+              });
+              alert("Payment Success!");
+          },
+          "theme": {
+              "color": "#3399cc"
+          }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+  </script>
+</body>
+</html> -->
