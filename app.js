@@ -105,11 +105,11 @@ passport.use(new localStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-// ✅ CRITICAL: Global middleware to set currUser in all templates
+// ✅ CRITICAL: Global middleware to set currUser and flash messages in all templates
 app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user || null;  // Always defined (null if not logged in)
+    res.locals.success = req.flash("success") || [];  // Default to empty array
+    res.locals.error = req.flash("error") || [];      // Default to empty array
+    res.locals.currUser = req.user || null;           // Always defined (null if not logged in)
     next();
 })
 
